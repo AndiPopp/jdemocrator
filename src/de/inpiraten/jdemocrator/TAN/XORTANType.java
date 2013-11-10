@@ -33,22 +33,22 @@ public class XORTANType extends TANType {
 		this.version = version;
 		
 		if (version >= 10){
-			if (saltLength > 30 || saltLength <0) throw new TANParameterException("Salt length "+saltLength+" illegal in "+typeName+" TAN type version "+version);
-			if (checksumLength > 30 || checksumLength <0) throw new TANParameterException("Checksum length "+checksumLength+" illegal in "+typeName+" TAN type version "+version);
-			if (keyLength > 60 || keyLength <0) throw new TANParameterException("Key length "+keyLength+" illegal in "+typeName+" TAN type version "+version);
+			if (saltLength > 30 || saltLength <1) throw new TANParameterException("Salt length "+saltLength+" illegal in "+typeName+" TAN type version "+version);
+			if (checksumLength > 30 || checksumLength <1) throw new TANParameterException("Checksum length "+checksumLength+" illegal in "+typeName+" TAN type version "+version);
+			if (keyLength > 60 || keyLength <1) throw new TANParameterException("Key length "+keyLength+" illegal in "+typeName+" TAN type version "+version);
 		
 			this.keyLength = keyLength;
 			this.saltLength = saltLength;
 			this.checksumLength = checksumLength;
 		}
 		else {
-			throw new TANParameterException("Unknown version for "+this.typeName+": "+version);
+			throw new TANParameterException("Unknown version for "+typeName+": "+version);
 		}
 	}
 
 	@Override
 	public String getTypeName() {
-		return this.typeName;
+		return typeName;
 	}
 
 	@Override

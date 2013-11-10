@@ -2,6 +2,11 @@ package de.inpiraten.jdemocrator.TAN;
 
 public class TANSizeException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3366011703694958429L;
+
 	public TANSizeException() {
 		super();
 		// TODO Auto-generated constructor stub

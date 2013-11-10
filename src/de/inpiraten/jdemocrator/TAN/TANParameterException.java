@@ -12,6 +12,11 @@ public class TANParameterException extends Exception {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = 3951269824508078074L;
+
+	/**
+	 * 
+	 */
 	public TANParameterException() {
 		// TODO Auto-generated constructor stub
 	}

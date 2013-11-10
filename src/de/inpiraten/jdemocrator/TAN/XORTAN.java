@@ -3,8 +3,8 @@
  */
 package de.inpiraten.jdemocrator.TAN;
 
-import de.inpiraten.jdemocrator.Numbers.Base64Number;
-import de.inpiraten.jdemocrator.Numbers.NoBase64NumberException;
+import de.inpiraten.jdemocrator.number.Base64Number;
+import de.inpiraten.jdemocrator.number.NoBase64NumberException;
 
 public class XORTAN extends TAN {
 
@@ -108,4 +108,12 @@ public class XORTAN extends TAN {
 		return 0;
 	}
 
+	public String toBase64String(){
+		String output ="";
+		
+		//TODO
+		
+		return output;
+	}
+	
 }
