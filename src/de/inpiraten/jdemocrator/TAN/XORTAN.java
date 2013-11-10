@@ -3,117 +3,97 @@
  */
 package de.inpiraten.jdemocrator.TAN;
 
-import de.inpiraten.jdemocrator.number.Base64Number;
-import de.inpiraten.jdemocrator.number.NoBase64NumberException;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
+/**
+ * @author Andi Popp
+ *
+ */
 public class XORTAN extends TAN {
 
-	/**
-	 * The type of the TAN
-	 */
 	private final XORTANType type;
+	
+	public byte[] key;
+	
+	public byte[] pepper;
+	
 	
 	/**
 	 * Full parameter constructor
 	 * @param type
-	 * @param tanIndex
 	 * @param key
-	 * @param salt
-	 * @param checksum
-	 * @param electionNumber
-	 * @throws TANParameterException 
+	 * @param pepper
 	 */
-	public XORTAN(XORTANType type, long key, int salt,
-			int checksum, int electionNumber) throws TANSizeException {
+	public XORTAN(XORTANType type, byte[] key, byte[] pepper) throws IllegalArgumentException{
 		super();
 		this.type = type;
 		this.key = key;
-		this.salt = salt;
-		this.checksum = checksum;
-		this.electionNumber = electionNumber;
+		this.pepper = pepper;
 		
-		if (Long.toBinaryString(key).length() > type.getKeyLength()) throw new TANSizeException("Key to long");
-		if (Integer.toBinaryString(salt).length() > type.getSaltLength()) throw new TANSizeException("Salt to long");
-		if (Integer.toBinaryString(checksum).length() > type.getChecksumLength()) throw new TANSizeException("Checksum to long");
+		if (key.length != this.type.getKeyLength()) throw new IllegalArgumentException("Wrong key size");
+		if (pepper.length != this.type.getPepperLength()) throw new IllegalArgumentException("Wrong pepper size");
+		
+		
+		
 	}
-	
-	/**
-	 * Creates a TAN from a Base64 String
-	 * @param type
-	 * @param base64TANString
-	 * @param electioNumber
-	 * @throws TANParameterException
-	 * @throws TANSizeException
-	 */
-	public XORTAN(XORTANType type, String base64TANString, int electioNumber) 
-			throws TANParameterException, TANSizeException{
-		
+
+	public XORTAN(XORTANType type, String base64String) throws TANChecksumException{
 		this.type = type;
 		
-		try {
-			//Get binary string 
-			String bits = Base64Number.toBinaryString(base64TANString);
-			
-			//Get checksum part
-			String checkSumString = bits.substring(bits.length()-this.type.getChecksumLength(), bits.length());
-			this.checksum = Integer.parseInt(checkSumString, 2);
-			
-			//Get salt part
-			String saltString = bits.substring(bits.length()-this.type.getChecksumLength()-this.type.getSaltLength(), bits.length()-this.type.getChecksumLength());
-			this.salt = Integer.parseInt(saltString, 2);
-			
-			//Get key part
-			String keyString = bits.substring(bits.length()-this.type.getChecksumLength()-this.type.getSaltLength()-this.type.getKeyLength(), bits.length()-this.type.getChecksumLength()-this.type.getSaltLength());
-			this.key = Integer.parseInt(keyString, 2);
-			
-			
-		} catch (NoBase64NumberException e) {
-			throw new TANParameterException("Illegal characters in TAN: "+e.getMessage());
-		} catch (IndexOutOfBoundsException e) {
-			throw new TANSizeException("TAN String to long for XORTAN");
-		}
+		byte[] abc = Base64.decodeBase64(base64String);
+		if (abc.length != this.type.getTotalLength()) throw new IllegalArgumentException("TAN sizes do not match");
 	
-		
-		
+		this.key = ArrayUtils.subarray(abc, 0, this.type.getKeyLength());
+		this.pepper = ArrayUtils.subarray(abc, this.type.getKeyLength(), this.type.getKeyLength()+this.type.getPepperLength());
+		byte[] checksum = ArrayUtils.subarray(abc, this.type.getKeyLength()+this.type.getPepperLength(), this.type.getKeyLength()+this.type.getPepperLength()+this.type.getChecksumLength());
+
+		if (!this.checkChecksum(checksum)) throw new TANChecksumException();
 	}
 	
-	/**
-	 * The key part of the TAN
+	/* (non-Javadoc)
+	 * @see de.inpiraten.jdemocrator.TAN.TAN#geType()
 	 */
-	long key;
-	
-	/**
-	 * The salt part of the TAN
-	 */
-	int salt;
-	
-	/**
-	 * The checksum part of the TAN
-	 */
-	int checksum;
-
-	/**
-	 * The number of the election the TAN is viable for
-	 */
-	int electionNumber;
-	
 	@Override
-	public TANType geType() {
+	public TANType getType() {
 		return this.type;
 	}
 
-	@Override
-	public int getElectionNumber() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public String toBase64String(){
-		String output ="";
+	/**
+	 * Compares the given checksum with the calculated checksum
+	 * @param givenChecksum to checksum to compare with the calculated checksum
+	 * @return true if the TAN's checksum equals the result of calculateChecksum(); false otherwise
+	 */
+	public boolean checkChecksum(byte[] givenChecksum){
 		
-		//TODO
+		byte[] checksum = this.calculateChecksum();
 		
-		return output;
+		if (checksum.length != givenChecksum.length) return false;
+	
+		for (int i = 0; i < checksum.length; i++){
+			if (givenChecksum[i] != checksum[i]) return false;
+		}
+		
+		return true;
 	}
 	
+	/**
+	 * Calculates the checksum of the TAN in the given checksum length n
+	 * @return the first n bytes of the the SHA256 hash of the combined array of key and pepper
+	 */
+	public byte[] calculateChecksum(){
+		byte[] keyAndPepper = ArrayUtils.addAll(this.key, this.pepper);
+		return ArrayUtils.subarray(DigestUtils.sha256(keyAndPepper), 0, this.type.getChecksumLength());
+	}
+
+	/**
+	 * Gives a base64 String representation of the TAN
+	 * @return a base64 String representation of the TAN
+	 */
+	public String toBase64String(){
+		byte[] ab = ArrayUtils.addAll(this.key, this.pepper);
+		byte[] abc = ArrayUtils.addAll(ab, this.calculateChecksum());
+		return Base64.encodeBase64String(abc);
+	}
 }

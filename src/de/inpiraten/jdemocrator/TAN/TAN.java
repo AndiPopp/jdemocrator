@@ -4,7 +4,7 @@
 package de.inpiraten.jdemocrator.TAN;
 
 /**
- * @author andi
+ * @author Andi Popp
  *
  */
 public abstract class TAN {
@@ -12,12 +12,9 @@ public abstract class TAN {
 	/**
 	 * Describes the type of the TAN
 	 */
-	public abstract TANType geType();
+	public abstract TANType getType();
 	
-	/**
-	 * The number of the election the TAN is viable for
-	 */
-	public abstract int getElectionNumber();
+
 	
 	
 }

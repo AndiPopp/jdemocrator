@@ -9,14 +9,14 @@ public abstract class TANType {
 
 	/**
 	 * A String to identify the TAN type
-	 * @return
+	 * @return A String to identify the TAN type
 	 */
 	public abstract String getTypeName();
 	
 	/**
-	 * An integer to identifies the version of the Type
-	 * @return
+	 * A float to identify the version of the Type
+	 * @return A float to identify the version of the Type
 	 */
-	public abstract int getVersion ();
+	public abstract float getVersion ();
 	
 }

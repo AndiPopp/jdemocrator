@@ -10,39 +10,37 @@ public class XORTANType extends TANType {
 	/**
 	 * An integer to identifies the version of the Type
 	 */
-	private final int version;
+	private final float version;
 	
 	/**
-	 * The length of the key part of the key in Bit
+	 * The length of the key part of the key in byte
 	 */
 	private final int keyLength;
 	
 	/**
-	 * The length of the salt part of the key in Bit
+	 * The length of the pepper part of the key in byte
 	 */
-	private final int saltLength;
+	private final int pepperLength;
 	
 	/**
-	 * The length of the checksum part of the key in Bit 
+	 * The length of the checksum part of the key in byte 
 	 */
 	public final int checksumLength;
 
-	public XORTANType(int indexLength, int keyLength, int saltLength,
-			int checksumLength, int version) throws TANParameterException {
+	public XORTANType(int keyLength, int pepperLength,
+			int checksumLength, int version) throws IllegalArgumentException {
 		super();
 		this.version = version;
 		
-		if (version >= 10){
-			if (saltLength > 30 || saltLength <1) throw new TANParameterException("Salt length "+saltLength+" illegal in "+typeName+" TAN type version "+version);
-			if (checksumLength > 30 || checksumLength <1) throw new TANParameterException("Checksum length "+checksumLength+" illegal in "+typeName+" TAN type version "+version);
-			if (keyLength > 60 || keyLength <1) throw new TANParameterException("Key length "+keyLength+" illegal in "+typeName+" TAN type version "+version);
-		
+		if (version >= 1){
+
 			this.keyLength = keyLength;
-			this.saltLength = saltLength;
+			this.pepperLength = pepperLength;
 			this.checksumLength = checksumLength;
+			if (checksumLength > 32) throw new IllegalArgumentException("Checksum length to long. "+typeName+" in Version "+version+" supports only up to 32 byte.");
 		}
 		else {
-			throw new TANParameterException("Unknown version for "+typeName+": "+version);
+			throw new IllegalArgumentException("Unknown version for "+typeName+": "+version);
 		}
 	}
 
@@ -56,28 +54,32 @@ public class XORTANType extends TANType {
 	 * Give the version of this key as integer
 	 * @return version / 10
 	 */
-	public int getVersion() {
+	public float getVersion() {
 		return this.version;
 	}
 
 	/**
-	 * Get the length of the key part of the TAN in bits
+	 * Get the length of the key part of the TAN in byte
 	 */
 	public int getKeyLength(){
 		return this.keyLength;
 	}
 	
 	/**
-	 * Get the length of the salt part of the TAN in bits
+	 * Get the length of the pepper part of the TAN in byte
 	 */
-	public int getSaltLength(){
-		return this.saltLength;
+	public int getPepperLength(){
+		return this.pepperLength;
 	}
 	
 	/**
-	 * Get the length of the checksum part of the TAN in bits
+	 * Get the length of the checksum part of the TAN in byte
 	 */
 	public int getChecksumLength(){
-		return this.saltLength;
+		return this.checksumLength;
+	}
+	
+	public int getTotalLength(){
+		return this.keyLength + this.pepperLength + this.checksumLength;
 	}
 }
