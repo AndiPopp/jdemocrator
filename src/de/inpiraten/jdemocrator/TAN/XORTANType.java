@@ -25,10 +25,10 @@ public class XORTANType extends TANType {
 	/**
 	 * The length of the checksum part of the key in byte 
 	 */
-	public final int checksumLength;
+	private final int checksumLength;
 
 	public XORTANType(int keyLength, int pepperLength,
-			int checksumLength, int version) throws IllegalArgumentException {
+			int checksumLength, float version) throws IllegalArgumentException {
 		super();
 		this.version = version;
 		
@@ -81,5 +81,10 @@ public class XORTANType extends TANType {
 	
 	public int getTotalLength(){
 		return this.keyLength + this.pepperLength + this.checksumLength;
+	}
+
+	@Override
+	public String toString() {
+		return this.getTypeName()+","+this.version+","+this.keyLength+","+this.pepperLength+","+this.checksumLength;
 	}
 }

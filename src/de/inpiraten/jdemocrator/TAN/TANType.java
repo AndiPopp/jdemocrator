@@ -19,4 +19,9 @@ public abstract class TANType {
 	 */
 	public abstract float getVersion ();
 	
+	/**
+	 * A method to make the TAN Type into a string
+	 */
+	public abstract String toString();
+	
 }
