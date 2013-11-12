@@ -12,6 +12,8 @@ import javax.crypto.spec.PBEKeySpec;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import de.inpiraten.jdemocrator.license.GPL;
+
 
 public class TANGenerator {
 	
@@ -37,11 +39,22 @@ public class TANGenerator {
 
 	public static void main (String[] args) throws IOException, InvalidKeySpecException{
 		
+		//Intromessage
+		GPL.printLicenseNotice();
+		System.out.println("\njDemocrator Authority TAN Generator");
+		System.out.println(  "===================================\n");
+		
+		System.out.println("This programm will generate voting TANs for a semi-online secrete voting.");
+		System.out.println("You will be asked to specify a random seed. Please enter a number of random");
+		System.out.println("characters to your liking. This will help to seed a secure random number");
+		System.out.println("generator which will generate the master TANs for every vote and derive the");
+		System.out.println("TANs.");
+		
 		//Read seed from System.in
-		System.out.print("Enter the seed for the TAN generator: ");
+		System.out.print("\nEnter the seed for the TAN generator: ");
 		BufferedReader b = new BufferedReader(new InputStreamReader(System.in));
 		String seed = b.readLine();
-
+		
 		TANGenerator G = new TANGenerator(seed, "todo");
 		
 		
