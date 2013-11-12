@@ -12,21 +12,25 @@ import java.net.URL;
 public class TANAuthority {
 	
 	/**
-	 * Gets the Name of the TAN Authority
-	 * @return the Name of the TAN Authority
+	 * The Name of the TAN Authority
 	 */
-	public String getName(){
-		return this.name;
-	}
-	private String name;
+	public final String name;
 	
 	/**
-	 * Gets the addresse of this TAN Authority's Master TAN announce Server
-	 * @return
+	 * The address of this TAN Authority's Master TAN announce Server
 	 */
-	public URL getAnnounceServerAddress(){
-		return this.announceServerAddress;
+	public final URL announceServerAddress;
+
+	/**
+	 * Full Parameter Constructor
+	 * @param name
+	 * @param announceServerAddress
+	 */
+	public TANAuthority(String name, URL announceServerAddress) {
+		super();
+		this.name = name;
+		this.announceServerAddress = announceServerAddress;
 	}
-	private URL announceServerAddress;
+	
 	
 }

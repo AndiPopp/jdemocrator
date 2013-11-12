@@ -15,92 +15,86 @@ import de.inpiraten.jdemocrator.TAN.TANType;
 public class Event {
 	
 	/**
-	 * Gets the name of the event as string
-	 * @return the name of the event
+	 * The name of the event
 	 */
-	public String getEventName(){
-		return this.eventName;
-	}
-	private String eventName;
+	public final String eventName;
 	
 	/**
-	 * Gets the name of the the url identifier for this event
-	 * @return the name of the the url identifier for this event
+	 * The url identifier for this event
 	 */
-	public String getEventURLIdentifier(){
-		return this.eventURLIdentifier;
-	}
-	private String eventURLIdentifier;
+	public final String eventURLIdentifier;
 	
 	/**
-	 * Gets the TAN type used for this event
-	 * @return the TAN type used for this event
+	 * The TAN type used for this event
 	 */
-	public TANType getTANType(){
-		return this.TANType;
-	}
-	private TANType TANType;
+	public final TANType TANType;
 	
 	/**
-	 * Gets the key derivation function used for this event
-	 * @return a string representing the key derivation function used for this event
+	 * The key derivation function used for this event
 	 */
-	public String getKeyDerivationFunction(){
-		return this.keyDerivationFunction;
-	}
-	private String keyDerivationFunction;
+	public final String keyDerivationFunction;
 	
 	/**
-	 * Gets the number of elections for this event
-	 * @return the number of elections for this event
+	 * The number of elections for this event
 	 */
-	public int getNumberOfElections(){
-		return this.numberOfElections;
-	}
-	private int numberOfElections;
+	public final int numberOfElections;
 	
 	/**
-	 * Gets the number of voters for this event
-	 * @return the number of voters for this event
+	 * The number of voters for this event
 	 */
-	public int getNumberOfVoters(){
-		return this.numberOfVoters;
-	}
-	private int numberOfVoters;
+	public final int numberOfVoters;
 	
 	/**
-	 * Gets the minimal voting delay to balance load on ballotbox servers
-	 * @return the minimal voting delay in milliseconds
+	 * The minimal voting delay to balance load on ballot box servers
 	 */
-	public int getMinVotingDelay(){
-		return this.minVotingDelay;
-	}
-	private int minVotingDelay;
+	public final int minVotingDelay;
 	
 	/**
-	 * Gets the maximal voting delay to balance load on ballotbox servers
+	 * Gets the maximal voting delay to balance load on ballot box servers
 	 * @return the maximal voting delay in milliseconds
 	 */
-	public int getMaxVotingDelay(){
-		return this.maxVotingDelay;
-	}
-	private int maxVotingDelay;
+	public final int maxVotingDelay;
 	
 	/**
-	 * Gets the addresses of the ballot box server addresses for this event
-	 * @return an array containing the addresses of the ballot box server addresses for this event
+	 * The addresses of the ballot box server addresses for this event
 	 */
-	public URL[] getBallotBoxServerAddresses(){
-		return this.ballotBoxServerAddress;
-	}
-	private URL[] ballotBoxServerAddress;
+	public final URL[] ballotBoxServerAddress;
 	
 	/**
-	 * Gets the TANAuthorities for this event
-	 * @return an array containing the TANAuthorities for this event
+	 * The TANAuthorities for this event
 	 */
-	public TANAuthority[] getEventTANAuhtorities(){
-		return this.eventTANAuthority;
+	public final TANAuthority[] eventTANAuthority;
+
+	/**
+	 * Full Parameter Constructor
+	 * @param eventName
+	 * @param eventURLIdentifier
+	 * @param tANType
+	 * @param keyDerivationFunction
+	 * @param numberOfElections
+	 * @param numberOfVoters
+	 * @param minVotingDelay
+	 * @param maxVotingDelay
+	 * @param ballotBoxServerAddress
+	 * @param eventTANAuthority
+	 */
+	public Event(String eventName, String eventURLIdentifier,
+			de.inpiraten.jdemocrator.TAN.TANType tANType,
+			String keyDerivationFunction, int numberOfElections,
+			int numberOfVoters, int minVotingDelay, int maxVotingDelay,
+			URL[] ballotBoxServerAddress, TANAuthority[] eventTANAuthority) {
+		super();
+		this.eventName = eventName;
+		this.eventURLIdentifier = eventURLIdentifier;
+		TANType = tANType;
+		this.keyDerivationFunction = keyDerivationFunction;
+		this.numberOfElections = numberOfElections;
+		this.numberOfVoters = numberOfVoters;
+		this.minVotingDelay = minVotingDelay;
+		this.maxVotingDelay = maxVotingDelay;
+		this.ballotBoxServerAddress = ballotBoxServerAddress;
+		this.eventTANAuthority = eventTANAuthority;
 	}
-	private TANAuthority[] eventTANAuthority;
+	
+	
 }
