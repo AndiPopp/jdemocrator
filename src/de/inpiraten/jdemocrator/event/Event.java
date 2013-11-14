@@ -61,6 +61,7 @@ public class Event {
 	 * @return the maximal voting delay in milliseconds
 	 */
 	public final int maxVotingDelay;
+<<<<<<< HEAD
 	
 	/**
 	 * The addresses of the ballot box server addresses for this event
@@ -200,4 +201,49 @@ public class Event {
 		
 		return true;
 	}
+=======
+	
+	/**
+	 * The addresses of the ballot box server addresses for this event
+	 */
+	public final URL[] ballotBoxServerAddress;
+	
+	/**
+	 * The TANAuthorities for this event
+	 */
+	public final TANAuthority[] eventTANAuthority;
+
+	/**
+	 * Full Parameter Constructor
+	 * @param eventName
+	 * @param eventURLIdentifier
+	 * @param tANType
+	 * @param keyDerivationFunction
+	 * @param numberOfElections
+	 * @param numberOfVoters
+	 * @param minVotingDelay
+	 * @param maxVotingDelay
+	 * @param ballotBoxServerAddress
+	 * @param eventTANAuthority
+	 */
+	public Event(String eventName, String eventURLIdentifier,
+			de.inpiraten.jdemocrator.TAN.TANType tANType,
+			String keyDerivationFunction, int numberOfElections,
+			int numberOfVoters, int minVotingDelay, int maxVotingDelay,
+			URL[] ballotBoxServerAddress, TANAuthority[] eventTANAuthority) {
+		super();
+		this.eventName = eventName;
+		this.eventURLIdentifier = eventURLIdentifier;
+		TANType = tANType;
+		this.keyDerivationFunction = keyDerivationFunction;
+		this.numberOfElections = numberOfElections;
+		this.numberOfVoters = numberOfVoters;
+		this.minVotingDelay = minVotingDelay;
+		this.maxVotingDelay = maxVotingDelay;
+		this.ballotBoxServerAddress = ballotBoxServerAddress;
+		this.eventTANAuthority = eventTANAuthority;
+	}
+	
+	
+>>>>>>> d6761e8bbd95a80bc9a4fc037b606bded9d46de4
 }
