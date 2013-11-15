@@ -3,7 +3,10 @@
  */
 package de.inpiraten.jdemocrator.TAN;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+
+import de.inpiraten.jdemocrator.event.IllegalEntryException;
 
 /**
  * @author Andi Popp
@@ -18,7 +21,6 @@ public class TANAuthority {
 	
 	/**
 	 * The address of this TAN Authority's Master TAN announce Server
-<<<<<<< HEAD
 	 */
 	public final URL announceServerAddress;
 
@@ -27,29 +29,33 @@ public class TANAuthority {
 	 * @param name
 	 * @param announceServerAddress
 	 */
-=======
-	 */
-	public final URL announceServerAddress;
 
-	/**
-	 * Full Parameter Constructor
-	 * @param name
-	 * @param announceServerAddress
-	 */
->>>>>>> d6761e8bbd95a80bc9a4fc037b606bded9d46de4
 	public TANAuthority(String name, URL announceServerAddress) {
 		super();
 		this.name = name;
 		this.announceServerAddress = announceServerAddress;
-<<<<<<< HEAD
 	}
 	
 	public String toString(){
 		return this.name+","+this.announceServerAddress.toString();
 	}
-=======
-	}
 	
->>>>>>> d6761e8bbd95a80bc9a4fc037b606bded9d46de4
+	/**
+	 * Gives a TANAuthority represented by the given string
+	 * @param s
+	 * @throws IllegalEntryException if the string cannot be parsed into a TAN Authority object
+	 */
+	public TANAuthority (String s) throws IllegalEntryException{
+		String[] data = s.split(",", 2);
+		if (data.length != 2) throw new IllegalEntryException(s+" is not a valid TAN authority description");
+		
+		this.name = data[0];
+		try {
+			this.announceServerAddress = new URL(data[1]);
+		} catch (MalformedURLException e) {
+			throw new IllegalEntryException(data[1]+" is not a valid URL");
+		}
+		
+	}
 	
 }

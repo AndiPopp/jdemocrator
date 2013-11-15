@@ -9,11 +9,13 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
 
 import de.inpiraten.jdemocrator.TAN.TANAuthority;
 import de.inpiraten.jdemocrator.TAN.TANType;
+import de.inpiraten.jdemocrator.TAN.XORTANType;
 
 /**
  * @author Andi Popp
@@ -61,7 +63,6 @@ public class Event {
 	 * @return the maximal voting delay in milliseconds
 	 */
 	public final int maxVotingDelay;
-<<<<<<< HEAD
 	
 	/**
 	 * The addresses of the ballot box server addresses for this event
@@ -94,7 +95,7 @@ public class Event {
 		super();
 		this.eventName = eventName;
 		this.eventURLIdentifier = eventURLIdentifier;
-		TANType = tANType;
+		this.TANType = tANType;
 		this.keyDerivationFunction = keyDerivationFunction;
 		this.numberOfElections = numberOfElections;
 		this.numberOfVoters = numberOfVoters;
@@ -127,10 +128,36 @@ public class Event {
 		//Fill Entries
 		this.eventName = entries.remove(findEntry(entries, "eventName")).data;
 		this.eventURLIdentifier = entries.remove(findEntry(entries, "evenURLIdentifier")).data;
-			
-
+		this.numberOfElections = Integer.parseInt(entries.remove(findEntry(entries, "numberOfElections")).data);
+		this.numberOfVoters = Integer.parseInt(entries.remove(findEntry(entries, "numberOfVoters")).data);
+		this.minVotingDelay = Integer.parseInt(entries.remove(findEntry(entries, "minVotingDelay")).data);
+		this.maxVotingDelay  = Integer.parseInt(entries.remove(findEntry(entries, "maxVotingDelay")).data);
+		this.keyDerivationFunction = entries.remove(findEntry(entries, "keyDerivationFunction")).data;
 		
+		String TANTypeString = entries.remove(findEntry(entries, "TANType")).data;
+		String[] TANTypeEntries = TANTypeString.split(",");
+		if (TANTypeEntries[0].equalsIgnoreCase("xorTAN")){
+			this.TANType = new XORTANType(TANTypeString);
+		}
+		else{
+			throw new IllegalEntryException("Unknown TAN type: "+TANTypeEntries[0]);
+		}
 		
+		String[] TANAuthorityEntries = entries.remove(findEntry(entries, "eventTANAuthority")).data.split("|");
+		this.eventTANAuthority = new TANAuthority[TANAuthorityEntries.length];
+		for (int i = 0; i < TANAuthorityEntries.length; i++){
+			this.eventTANAuthority[i] = new TANAuthority(TANAuthorityEntries[i]);
+		}
+		
+		String[] ballotBoxServerEntries = entries.remove(findEntry(entries, "ballotBoxServerAddress")).data.split("|");
+		this.ballotBoxServerAddress = new URL[ballotBoxServerEntries.length];
+		for (int i = 0; i < ballotBoxServerEntries.length; i++){
+			try {
+				this.ballotBoxServerAddress[i] = new URL(ballotBoxServerEntries[i]);
+			} catch (MalformedURLException e) {
+				throw new IllegalEntryException(ballotBoxServerEntries[i]+" is not a valid URL");
+			} 
+		}
 	}
 	
 	private int findEntry(Vector<EventConfigEntry> entries, String identifier) throws IllegalEntryException{
@@ -201,49 +228,6 @@ public class Event {
 		
 		return true;
 	}
-=======
-	
-	/**
-	 * The addresses of the ballot box server addresses for this event
-	 */
-	public final URL[] ballotBoxServerAddress;
-	
-	/**
-	 * The TANAuthorities for this event
-	 */
-	public final TANAuthority[] eventTANAuthority;
 
-	/**
-	 * Full Parameter Constructor
-	 * @param eventName
-	 * @param eventURLIdentifier
-	 * @param tANType
-	 * @param keyDerivationFunction
-	 * @param numberOfElections
-	 * @param numberOfVoters
-	 * @param minVotingDelay
-	 * @param maxVotingDelay
-	 * @param ballotBoxServerAddress
-	 * @param eventTANAuthority
-	 */
-	public Event(String eventName, String eventURLIdentifier,
-			de.inpiraten.jdemocrator.TAN.TANType tANType,
-			String keyDerivationFunction, int numberOfElections,
-			int numberOfVoters, int minVotingDelay, int maxVotingDelay,
-			URL[] ballotBoxServerAddress, TANAuthority[] eventTANAuthority) {
-		super();
-		this.eventName = eventName;
-		this.eventURLIdentifier = eventURLIdentifier;
-		TANType = tANType;
-		this.keyDerivationFunction = keyDerivationFunction;
-		this.numberOfElections = numberOfElections;
-		this.numberOfVoters = numberOfVoters;
-		this.minVotingDelay = minVotingDelay;
-		this.maxVotingDelay = maxVotingDelay;
-		this.ballotBoxServerAddress = ballotBoxServerAddress;
-		this.eventTANAuthority = eventTANAuthority;
-	}
 	
-	
->>>>>>> d6761e8bbd95a80bc9a4fc037b606bded9d46de4
 }

@@ -1,5 +1,7 @@
 package de.inpiraten.jdemocrator.TAN;
 
+import de.inpiraten.jdemocrator.event.IllegalEntryException;
+
 public class XORTANType extends TANType {
 
 	/**
@@ -86,5 +88,19 @@ public class XORTANType extends TANType {
 	@Override
 	public String toString() {
 		return this.getTypeName()+","+this.version+","+this.keyLength+","+this.pepperLength+","+this.checksumLength;
+	}
+	
+	/**
+	 * Creates a XORTANType from a string written by {@link #toString()}
+	 * @param s
+	 * @throws IllegalEntryException
+	 */
+	public XORTANType(String s) throws IllegalEntryException{
+		String[] data = s.split(",");
+		if (data.length != 5) throw new IllegalEntryException(s+" is not a valid TAN type string (to many ,)");
+		this.version = Float.parseFloat(data[1]);
+		this.keyLength = Integer.parseInt(data[2]);
+		this.pepperLength = Integer.parseInt(data[3]);
+		this.checksumLength = Integer.parseInt(data[4]);
 	}
 }
