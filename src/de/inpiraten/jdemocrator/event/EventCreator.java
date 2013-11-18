@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Mac;
 
 import de.inpiraten.jdemocrator.TAN.TANAuthority;
 import de.inpiraten.jdemocrator.TAN.TANType;
@@ -146,6 +149,30 @@ public class EventCreator {
 			}
 		}
 		
+		//Key Derivation Function
+		String ballotSigningFunction = null;
+		while (ballotSigningFunction == null){
+			try {
+				System.out.println("\nChoose a ballot signing function fot his event");
+				System.out.println("(1) HMAC-SHA1");
+				System.out.println("(2) HMAC-SHA256");
+				System.out.println("(3) HMAC-SHA384");
+				System.out.println("(4) HMAC-SHA512");
+				System.out.println("(5) HMAC-MD5");
+				System.out.print("> ");
+				byte input = inputOption();
+				if (input == 0) input = 1; //standard option
+				if (input == 1) ballotSigningFunction = "HmacSHA1";
+				else if (input == 2) ballotSigningFunction = "HmacSHA256";
+				else if (input == 3) ballotSigningFunction = "HmacSHA384";
+				else if (input == 4) ballotSigningFunction = "HmacSHA512";
+				else if (input == 5) ballotSigningFunction = "HmacMD5";
+				else throw new NumberFormatException("Command input out of range");
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid input. Please try again.");
+			}
+		}
+		
 		//Number of elections
 		int numberOfElections = -1;
 		while (numberOfElections < 0){
@@ -259,7 +286,12 @@ public class EventCreator {
 			}
 		}
 		
-		Event E = new Event(EventName, URLIdentifier, tanType, keyDerivationFunction, keyDerivationIterations, numberOfElections, numberOfVoters, minVotingDelay, maxVotingDelay, ballotBoxServerAdress, tanAuthorities);
+		Event E = null;
+		try {
+			E = new Event(EventName, URLIdentifier, tanType, keyDerivationFunction, keyDerivationIterations, Mac.getInstance(ballotSigningFunction), numberOfElections, numberOfVoters, minVotingDelay, maxVotingDelay, ballotBoxServerAdress, tanAuthorities);
+		} catch (NoSuchAlgorithmException e1) {
+			System.out.println("Fatal error: chosen ballot signing function is not supported");
+		}
 		System.out.println("\nEvent overview:");
 		System.out.println("---------------");
 		E.echo(System.out);

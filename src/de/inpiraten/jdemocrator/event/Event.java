@@ -12,7 +12,10 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.Vector;
+
+import javax.crypto.Mac;
 
 import de.inpiraten.jdemocrator.TAN.TANAuthority;
 import de.inpiraten.jdemocrator.TAN.TANType;
@@ -48,6 +51,11 @@ public class Event {
 	 * The key specs for the master TAN to put into the key derivation function
 	 */
 	public final int keyDerivationIterations;
+	
+	/**
+	 * The Mac to sign the ballots
+	 */
+	public final Mac ballotSigningFunction;
 	
 	/**
 	 * The number of elections for this event
@@ -95,7 +103,8 @@ public class Event {
 	 */
 	public Event(String eventName, String eventURLIdentifier,
 			de.inpiraten.jdemocrator.TAN.TANType tANType,
-			String keyDerivationFunction, int keyDerivationIteration, int numberOfElections,
+			String keyDerivationFunction, int keyDerivationIteration, 
+			Mac ballotSigningFunction, int numberOfElections,
 			int numberOfVoters, int minVotingDelay, int maxVotingDelay,
 			URL[] ballotBoxServerAddress, TANAuthority[] eventTANAuthority) {
 		super();
@@ -104,6 +113,7 @@ public class Event {
 		this.TANType = tANType;
 		this.keyDerivationFunction = keyDerivationFunction;
 		this.keyDerivationIterations = keyDerivationIteration;
+		this.ballotSigningFunction = ballotSigningFunction;
 		this.numberOfElections = numberOfElections;
 		this.numberOfVoters = numberOfVoters;
 		this.minVotingDelay = minVotingDelay;
@@ -150,6 +160,11 @@ public class Event {
 		this.maxVotingDelay  = Integer.parseInt(entries.remove(findEntry(entries, "maxVotingDelay")).data);
 		this.keyDerivationFunction = entries.remove(findEntry(entries, "keyDerivationFunction")).data;
 		this.keyDerivationIterations = Integer.parseInt(entries.remove(findEntry(entries, "keyDerivationIterations")).data);
+		try {
+			this.ballotSigningFunction = Mac.getInstance(entries.remove(findEntry(entries, "ballotSigningFunction")).data);
+		} catch (NoSuchAlgorithmException e1) {
+			throw new IllegalEntryException("The specified ballot signing algorithm is invalid or not supported");
+		}
 		
 		String TANTypeString = entries.remove(findEntry(entries, "TANType")).data;
 		String[] TANTypeEntries = TANTypeString.split(",");
@@ -218,6 +233,7 @@ public class Event {
 		out.write("evenURLIdentifier:"+this.eventURLIdentifier+"\n");
 		out.write("keyDerivationFunction:"+this.keyDerivationFunction+"\n");
 		out.write("keyDerivationIterations:"+this.keyDerivationIterations+"\n");
+		out.write("ballotSigningFunction:"+this.ballotSigningFunction.getAlgorithm()+"\n");
 		out.write("numberOfElections:"+this.numberOfElections+"\n");
 		out.write("numberOfVoters:"+this.numberOfVoters+"\n");
 		out.write("minVotingDelay:"+this.minVotingDelay+"\n");
@@ -265,6 +281,7 @@ public class Event {
 		out.println("TAN type: "+this.TANType.toString());
 		out.println("Key derivation function: "+this.keyDerivationFunction);
 		out.println("Number of key derivation iterations: "+this.keyDerivationIterations);
+		out.println("Ballot signing functions: "+this.ballotSigningFunction.getAlgorithm());
 		out.println("Number of elections: "+this.numberOfElections);
 		out.println("Number of voters: "+this.numberOfVoters);
 		out.println("Voting delay: "+this.minVotingDelay+" to "+this.maxVotingDelay+" ms");

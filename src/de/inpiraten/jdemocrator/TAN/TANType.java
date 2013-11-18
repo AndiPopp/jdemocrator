@@ -8,7 +8,7 @@ import de.inpiraten.jdemocrator.event.Event;
 
 /**
  * An abstract class for TAN types
- * @author andi
+ * @author Andi Popp
  *
  */
 public abstract class TANType {

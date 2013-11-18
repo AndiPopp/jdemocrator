@@ -10,7 +10,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 /**
- * @author andi
+ * @author Andi Popp
  *
  */
 public abstract class KeyDerivationFunction {

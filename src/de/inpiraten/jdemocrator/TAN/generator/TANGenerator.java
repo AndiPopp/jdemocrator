@@ -4,17 +4,25 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Random;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.ArrayUtils;
 
+import de.inpiraten.jdemocrator.TAN.TAN;
 import de.inpiraten.jdemocrator.TAN.TANAuthority;
 import de.inpiraten.jdemocrator.event.Event;
 import de.inpiraten.jdemocrator.event.IllegalEntryException;
 import de.inpiraten.jdemocrator.license.GPL;
 
-
+/**
+ * A class with a static main function to provide a command line interface for creating TANs
+ * @author Andi Popp
+ *
+ */
 public class TANGenerator {
 	
 	BufferedReader commandLineInput;
@@ -23,7 +31,7 @@ public class TANGenerator {
 	String[] masterTAN;
 	
 	/**
-	 * Creates a TANGenerator instance from thi
+	 * Creates a TANGenerator instance from a command line
 	 * @param commandLineInput
 	 * @throws IOException 
 	 */
@@ -64,7 +72,7 @@ public class TANGenerator {
 
 	public static void main (String[] args) {
 		
-		//Intromessage
+		//Intro message
 		GPL.printLicenseNotice();
 		System.out.println("\njDemocrator Authority TAN Generator");
 		System.out.println(  "===================================\n");
@@ -72,10 +80,31 @@ public class TANGenerator {
 		System.out.println("This programm will generate voting TANs for a semi-online secrete voting.");
 		
 		try {
+			//Initialize TAN Generator
 			TANGenerator G = new TANGenerator(new BufferedReader(new InputStreamReader(System.in)));
+			
+			//Randomly generate master TANs
 			G.generateMasterTANs();
-			//TODO Generate the TANs
-			//TODO Mix up the TANs
+			
+			//Generate TANs from master TANs
+			TAN[][] tans = new TAN[G.event.numberOfElections][];
+			for (int i = 0; i < tans.length; i++){
+				try {
+					tans[i] = G.event.TANType.generateFromMasterTAN(G.masterTAN[i], G.event, G.event.numberOfVoters);
+				} catch (NoSuchAlgorithmException e) {
+					System.out.println("The Key Derivation function described as "+G.event.keyDerivationFunction+" is not supported. Exiting.");
+					System.exit(2);
+				} catch (InvalidKeySpecException e) {
+					System.out.println("Invalied Key Spec Exception while generating TANs. Exiting.");
+					System.exit(3);
+				}
+			}
+			
+			//Mix up the TANs
+			for (int i = 0; i < tans.length; i++){
+				shuffle(tans[i]);
+			}
+			
 			//TODO Write the TANs and master TANs to (printable) files
 		} catch (IOException e) {
 			System.out.println("An I/O Error occured");
@@ -138,5 +167,15 @@ public class TANGenerator {
 //		System.out.println("DEBUG: Read the following line: "+inputString);
 		if (inputString.equals("")) return 0;
 		else return Integer.parseInt(inputString);
+	}
+
+	private static void shuffle(TAN[] array){
+		Random r = new Random();
+		for (int i = array.length-1; i >= 0; i--){
+			int j = r.nextInt(i+1);
+			TAN h = array[j];
+			array[j] = array[i];
+			array[i] = h;
+		}
 	}
 }
