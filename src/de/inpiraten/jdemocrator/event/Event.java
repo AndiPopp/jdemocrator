@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
@@ -42,6 +43,11 @@ public class Event {
 	 * The key derivation function used for this event
 	 */
 	public final String keyDerivationFunction;
+	
+	/**
+	 * The key specs for the master TAN to put into the key derivation function
+	 */
+	public final int keyDerivationIterations;
 	
 	/**
 	 * The number of elections for this event
@@ -89,7 +95,7 @@ public class Event {
 	 */
 	public Event(String eventName, String eventURLIdentifier,
 			de.inpiraten.jdemocrator.TAN.TANType tANType,
-			String keyDerivationFunction, int numberOfElections,
+			String keyDerivationFunction, int keyDerivationIteration, int numberOfElections,
 			int numberOfVoters, int minVotingDelay, int maxVotingDelay,
 			URL[] ballotBoxServerAddress, TANAuthority[] eventTANAuthority) {
 		super();
@@ -97,6 +103,7 @@ public class Event {
 		this.eventURLIdentifier = eventURLIdentifier;
 		this.TANType = tANType;
 		this.keyDerivationFunction = keyDerivationFunction;
+		this.keyDerivationIterations = keyDerivationIteration;
 		this.numberOfElections = numberOfElections;
 		this.numberOfVoters = numberOfVoters;
 		this.minVotingDelay = minVotingDelay;
@@ -105,6 +112,12 @@ public class Event {
 		this.eventTANAuthority = eventTANAuthority;
 	}
 	
+	/**
+	 * Construct an Event from a config file
+	 * @param configFileLocation
+	 * @throws IOException
+	 * @throws IllegalEntryException
+	 */
 	public Event(String configFileLocation) throws IOException, IllegalEntryException{
 		//Create buffered reader to read lines from config file. Throws FileNotFoundException if there is no file a location
 		BufferedReader configFileIn = new BufferedReader(new InputStreamReader(new FileInputStream(configFileLocation)));
@@ -127,12 +140,16 @@ public class Event {
 		
 		//Fill Entries
 		this.eventName = entries.remove(findEntry(entries, "eventName")).data;
+		
 		this.eventURLIdentifier = entries.remove(findEntry(entries, "evenURLIdentifier")).data;
+		if (!EventCreator.checkURLSafety(this.eventURLIdentifier)) throw new IllegalEntryException("URL identifier "+this.eventURLIdentifier+" contains illegal characters.");
+		
 		this.numberOfElections = Integer.parseInt(entries.remove(findEntry(entries, "numberOfElections")).data);
 		this.numberOfVoters = Integer.parseInt(entries.remove(findEntry(entries, "numberOfVoters")).data);
 		this.minVotingDelay = Integer.parseInt(entries.remove(findEntry(entries, "minVotingDelay")).data);
 		this.maxVotingDelay  = Integer.parseInt(entries.remove(findEntry(entries, "maxVotingDelay")).data);
 		this.keyDerivationFunction = entries.remove(findEntry(entries, "keyDerivationFunction")).data;
+		this.keyDerivationIterations = Integer.parseInt(entries.remove(findEntry(entries, "keyDerivationIterations")).data);
 		
 		String TANTypeString = entries.remove(findEntry(entries, "TANType")).data;
 		String[] TANTypeEntries = TANTypeString.split(",");
@@ -143,13 +160,13 @@ public class Event {
 			throw new IllegalEntryException("Unknown TAN type: "+TANTypeEntries[0]);
 		}
 		
-		String[] TANAuthorityEntries = entries.remove(findEntry(entries, "eventTANAuthority")).data.split("|");
+		String[] TANAuthorityEntries = entries.remove(findEntry(entries, "eventTANAuthority")).data.split(";");
 		this.eventTANAuthority = new TANAuthority[TANAuthorityEntries.length];
 		for (int i = 0; i < TANAuthorityEntries.length; i++){
 			this.eventTANAuthority[i] = new TANAuthority(TANAuthorityEntries[i]);
 		}
 		
-		String[] ballotBoxServerEntries = entries.remove(findEntry(entries, "ballotBoxServerAddress")).data.split("|");
+		String[] ballotBoxServerEntries = entries.remove(findEntry(entries, "ballotBoxServerAddress")).data.split(";");
 		this.ballotBoxServerAddress = new URL[ballotBoxServerEntries.length];
 		for (int i = 0; i < ballotBoxServerEntries.length; i++){
 			try {
@@ -157,6 +174,14 @@ public class Event {
 			} catch (MalformedURLException e) {
 				throw new IllegalEntryException(ballotBoxServerEntries[i]+" is not a valid URL");
 			} 
+		}
+		
+		if (!entries.isEmpty()){
+			System.out.println("Warning: There were unused entries (maybe doubles):");
+			while (!entries.isEmpty()){
+				EventConfigEntry entry = entries.remove(0);
+				System.out.println(entry.identifier+":"+entry.data);
+			}
 		}
 	}
 	
@@ -192,6 +217,7 @@ public class Event {
 		out.write("eventName:"+this.eventName+"\n");
 		out.write("evenURLIdentifier:"+this.eventURLIdentifier+"\n");
 		out.write("keyDerivationFunction:"+this.keyDerivationFunction+"\n");
+		out.write("keyDerivationIterations:"+this.keyDerivationIterations+"\n");
 		out.write("numberOfElections:"+this.numberOfElections+"\n");
 		out.write("numberOfVoters:"+this.numberOfVoters+"\n");
 		out.write("minVotingDelay:"+this.minVotingDelay+"\n");
@@ -205,7 +231,7 @@ public class Event {
 				firstEntry = false;
 			}
 			else{
-				out.write("|");
+				out.write(";");
 			}
 			out.write(this.eventTANAuthority[i].toString());
 		}
@@ -218,7 +244,7 @@ public class Event {
 				firstEntry = false;
 			}
 			else{
-				out.write("|");
+				out.write(";");
 			}
 			out.write(this.ballotBoxServerAddress[i].toString());
 		}
@@ -229,5 +255,26 @@ public class Event {
 		return true;
 	}
 
-	
+	/**
+	 * Prints the configuration in a human readable form to the specificied print stream
+	 * @param out
+	 */
+	public void echo(PrintStream out){
+		out.println("Event name: "+this.eventName);
+		out.println("Event URL identifier: "+this.eventURLIdentifier);
+		out.println("TAN type: "+this.TANType.toString());
+		out.println("Key derivation function: "+this.keyDerivationFunction);
+		out.println("Number of key derivation iterations: "+this.keyDerivationIterations);
+		out.println("Number of elections: "+this.numberOfElections);
+		out.println("Number of voters: "+this.numberOfVoters);
+		out.println("Voting delay: "+this.minVotingDelay+" to "+this.maxVotingDelay+" ms");
+		out.println("Adresses of ballot box servers:");
+		for (int i = 0; i < this.ballotBoxServerAddress.length; i++){
+			out.println((i+1)+") "+this.ballotBoxServerAddress[i]);
+		}
+		out.println("TAN Authorities:");
+		for (int i = 0; i < this.eventTANAuthority.length; i++){
+			out.println((i+1)+") "+this.eventTANAuthority[i].name+" ["+this.eventTANAuthority[i].announceServerAddress+"]");
+		}
+	}
 }

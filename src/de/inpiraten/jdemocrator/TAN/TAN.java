@@ -14,7 +14,10 @@ public abstract class TAN {
 	 */
 	public abstract TANType getType();
 	
-
+	/**
+	 * A function to turn a TAN into a string
+	 */
+	public abstract String toString();
 	
 	
 }

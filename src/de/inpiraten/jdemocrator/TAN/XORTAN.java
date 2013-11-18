@@ -91,7 +91,7 @@ public class XORTAN extends TAN {
 	 * Gives a base64 String representation of the TAN
 	 * @return a base64 String representation of the TAN
 	 */
-	public String toBase64String(){
+	public String toString(){
 		byte[] ab = ArrayUtils.addAll(this.key, this.pepper);
 		byte[] abc = ArrayUtils.addAll(ab, this.calculateChecksum());
 		return Base64.encodeBase64String(abc);
